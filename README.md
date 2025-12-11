@@ -87,7 +87,27 @@ curl -s -X POST http://localhost:8099/mcp \
           "name":"search_engines",
           "arguments":{"limit":5}
         }
-      }'
+      }' | jq .
+```
+
+### 3. Filtered Search (Example)
+
+You can use the `filter_expression` argument to refine your search. For example, to find engines of type 'VIRTUALIZATION':
+
+```bash
+curl -s -X POST http://localhost:8099/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": "search-filter",
+    "method": "tools/call",
+    "params": {
+      "name": "search_engines",
+      "arguments": {
+        "filter_expression": "type EQ '\''VIRTUALIZATION'\''"
+      }
+    }
+  }' | jq .
 ```
 
 ### n8n Integration
