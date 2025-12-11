@@ -1,0 +1,118 @@
+{
+    "name": "Delphix DCT MCP Integration",
+    "nodes": [
+        {
+            "parameters": {},
+            "id": "e825026e-2216-430c-99da-103362a2254e",
+            "name": "Manual Trigger",
+            "type": "n8n-nodes-base.manualTrigger",
+            "typeVersion": 1,
+            "position": [
+                250,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "http://localhost:8099/mcp",
+                "sendBody": true,
+                "contentType": "json",
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "jsonrpc",
+                            "value": "2.0"
+                        },
+                        {
+                            "name": "id",
+                            "value": "init-n8n-1"
+                        },
+                        {
+                            "name": "method",
+                            "value": "initialize"
+                        }
+                    ]
+                },
+                "specifyBody": "json",
+                "jsonBody": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": \"init-n8n-1\",\n  \"method\": \"initialize\",\n  \"params\": {\n    \"protocolVersion\": \"2024-11-05\",\n    \"capabilities\": {\n      \"tools\": {\n        \"call\": true,\n        \"list\": true\n      }\n    },\n    \"clientInfo\": {\n      \"name\": \"n8n\",\n      \"version\": \"1.0\"\n    }\n  }\n}",
+                "options": {}
+            },
+            "id": "1b082168-3015-46fd-9934-8c03612d4a51",
+            "name": "MCP Initialize",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                470,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "http://localhost:8099/mcp",
+                "sendBody": true,
+                "contentType": "json",
+                "specifyBody": "json",
+                "jsonBody": "{\n  \"jsonrpc\": \"2.0\",\n  \"id\": \"query-n8n-1\",\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"search_engines\",\n    \"arguments\": {\n      \"limit\": 5\n    }\n  }\n}",
+                "options": {}
+            },
+            "id": "7f8b92d6-11f8-4e1a-8c3b-5a0d63f9e2b2",
+            "name": "MCP Search Engines",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.1,
+            "position": [
+                690,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "jsCode": "const mcpResponse = $input.first().json;\n\n// El servidor MCP devuelve el JSON 'stringificado' dentro de text\n// Debemos parsearlo para ver los datos reales\nif (mcpResponse.result && mcpResponse.result.content && mcpResponse.result.content[0]) {\n  const rawText = mcpResponse.result.content[0].text;\n  try {\n    return JSON.parse(rawText);\n  } catch (e) {\n    return { error: \"No se pudo parsear el JSON\", raw: rawText };\n  }\n}\n\nreturn mcpResponse;"
+            },
+            "id": "parse-mcp-response",
+            "name": "Parse Response",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 2,
+            "position": [
+                910,
+                300
+            ]
+        }
+    ],
+    "connections": {
+        "Manual Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "MCP Initialize",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "MCP Initialize": {
+            "main": [
+                [
+                    {
+                        "node": "MCP Search Engines",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "MCP Search Engines": {
+            "main": [
+                [
+                    {
+                        "node": "Parse Response",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}
