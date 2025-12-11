@@ -92,14 +92,30 @@ curl -s -X POST http://localhost:8099/mcp \
 
 ### n8n Integration
 
-To integrate with n8n, use the **HTTP Request** node:
+We have provided a ready-to-use n8n workflow file in this repository: `Delphix DCT MCP Integration.json`.
 
--   **Method**: POST
--   **URL**: `http://your-docker-host:8099/mcp`
--   **Headers**: `Content-Type: application/json`
--   **Body**: JSON Raw (copy the JSON from the examples above).
+#### 1. Importing the Workflow
+1.  Open your n8n editor.
+2.  Go to **Workflows menu** > **Import from...** > **File**.
+3.  Select the `Delphix DCT MCP Integration.json` file from this repository.
+4.  The workflow includes nodes for:
+    -   **Initialization**: Establishes the session.
+    -   **Tool Call**: Example query (Search Engines).
+    -   **Parse Response**: Critical step to convert the MCP string output into a usable JSON object.
 
-We recommend creating a workflow that performs `initialize` at the start (or just once if the container is persistent) and then makes tool calls as needed.
+#### 2. Workflow Logic
+Because the MCP protocol returns the result stringified inside a `text` field, we use a Code node to parse it:
+
+```javascript
+const mcpResponse = $input.first().json;
+const rawText = mcpResponse.result.content[0].text;
+return JSON.parse(rawText);
+```
+
+#### 3. Result
+The final output is a clean JSON object ready for use in subsequent n8n nodes.
+
+![n8n Workflow Example](assets/n8n_workflow.png)
 
 ## Troubleshooting
 
