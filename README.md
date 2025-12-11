@@ -110,6 +110,26 @@ curl -s -X POST http://localhost:8099/mcp \
   }' | jq .
 ```
 
+### 4. Search dSources (Oracle Example)
+
+To search for specific data sources, such as Oracle databases:
+
+```bash
+curl -s -X POST http://localhost:8099/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": "search-dsource",
+    "method": "tools/call",
+    "params": {
+      "name": "search_dsources",
+      "arguments": {
+        "filter_expression": "database_type EQ '\''Oracle'\''"
+      }
+    }
+  }' | jq .
+```
+
 ### n8n Integration
 
 We have provided a ready-to-use n8n workflow file in this repository: `Delphix DCT MCP Integration.json`.
