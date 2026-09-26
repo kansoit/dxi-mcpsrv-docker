@@ -40,10 +40,11 @@ ENV REQUESTS_CA_BUNDLE=/etc/ssl/certs/ca-certificates.crt
 ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
 ENV PYTHONUNBUFFERED=1
 
-# Run as non-root user
+# Create non-root user and ensure log directories are writable
 RUN groupadd -g 1000 mcpuser && \
     useradd -u 1000 -g mcpuser -s /bin/false -m mcpuser && \
-    mkdir -p /app/logs && chown -R mcpuser:mcpuser /app
+    mkdir -p /app/logs && chown -R mcpuser:mcpuser /app && \
+    mkdir -p /usr/local/lib/python3.11/logs && chown -R mcpuser:mcpuser /usr/local/lib/python3.11/logs
 
 USER mcpuser
 
